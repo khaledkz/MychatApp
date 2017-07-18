@@ -1,0 +1,58 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+#userPageForm{
+  margin-top: 30px;
+  margin-bottom: 50px;
+}
+
+#createUserContent{
+ }
+#usrNameReadOnly{
+  color:red;
+  background-color: khaki;
+  text-align: center;
+}
+.welcomeUser{
+  margin-bottom: 30px;
+}
+.cont{
+  border: solid 1px seagreen;
+  min-height: 300px;
+  background-color:blanchedalmond;
+  color: crimson;
+  height: auto;
+  max-height: 450px;
+  overflow: auto;
+
+
+}
+.onlineUsers li{
+  list-style: decimal;
+}
+.chatContantLiveList {
+  padding: 5px;
+  margin-top: 3px;
+  font-size: 22px;
+  width:80%;
+  margin-bottom: 3px;
+  background-color: gainsboro;
+  list-style: none;
+  border-radius:7px;
+
+}
+
+.sendmsgForm{
+  margin-top: 20px;
+}
+.colorGreen{
+  color:green !important;
+}
+.colorblue{
+  color:blue !important;
+}

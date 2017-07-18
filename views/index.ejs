@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+</head>
+<body>
+
+
+<!-- Start First Part Create User Name SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS-->
+<div id="createUserContent">
+  <div class="row">
+
+    <h3 class="text-center text-danger col-lg-12"> Welcome To Zoro Chat Please add your NickName </h3>
+  </div>
+  <form id="userPageForm">
+
+    <div class="row">
+      <input id="userNameField" class="col-lg-3" type="text" placeholder="nickName">
+
+      <button class="btn btn-success  col-lg-2"> Start Chat </button>
+    </div>
+  </form>
+  <h4 id="errorMsg"></h4>
+</div>
+
+<div class="chatAppContent">
+
+
+
+</div>
+<!-- End First Part Create User Name EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE-->
+
+
+<!-- Start Secand Part Chat Page  SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS-->
+
+<div class="chatAppContainer">
+
+  <!-- First Part1 inside Chat Page Welcome msg to new user with his name -->
+  <div class="row welcomeUser">
+
+    <h5 class="mr-2 text-info" > Welcome,Your nick name is </h5>
+    <input type="text" class='' id="usrNameReadOnly"  readonly>
+
+  </div>
+  <!-- End Part1 inside Chat Page Welcome msg to new user with his name -->
+
+  <h2 id="showTypingMsgPlus"> </h2>
+  <div class="row">
+
+    <div class="col-lg-9 col-md-9 col-sm-9">
+      <nav class="cont">
+        <ul id="chatContantLive">
+
+        </ul>
+      </nav>
+    </div>
+
+
+    <div class="col-lg-3 col-md-3 col-sm-3">
+      <nav class="cont onlineUsers">
+        <h4 class="ml-2 mt-2">Online Users:</h4>
+        <ul id="usersOnlineList">
+
+        </ul>
+      </nav>
+    </div>
+
+  </div>
+
+  <div  class="sendmsgForm">
+    <form>
+
+      <div class="row">
+        <textarea rows="4" cols="50" id='msgHoldFromUser' type="text" placeholder="msg" autocomplete="off">  </textarea>
+      </div>
+      <br>
+      <button class="btn btn-success">Send</button>
+    </form>
+  </div>
+
+  <h6></h6>
+</div>
+<!-- End Secand Part Chat Page      EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE-->
+
+
+<!--install libraries-->
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.js"></script>
+
+<script>
+
+    $('.chatAppContainer').hide();
+
+    var sockiet = io();
+    var $onlineUsers=$('.onlineUsers ul');
+
+    $('#userPageForm').submit(function () {
+         sockiet.emit('send newuser2server',$('#userNameField').val().trim());
+        return false;
+    });
+
+
+
+    sockiet.on('server send newUser2page',function (data) {
+        $('.chatAppContainer').show();
+        $('#createUserContent').hide();
+
+        console.log(data);
+        $('#usrNameReadOnly').val(data)
+    })
+    sockiet.on('server senderr newUser2page',function (data) {
+         document.querySelector('#errorMsg').innerHTML=data;
+
+    })
+
+    sockiet.on('update User server',function (data) {
+        console.log();
+        var html='';
+        for(var i=0; i<data.length;i++){
+
+                html+=('<li>'+data[i]+'</li>');
+
+
+        }
+
+//        var listTotal= document.getElementById('usersOnlineList');
+////        console.log(listTotal.childElementCount+1);
+//        for(i=1;i<listTotal.childElementCount;i++){
+//            console.log(listTotal.childElementCount+1);
+//            if(listTotal.childNodes[i] % 2 ==0){
+//                console.log('green')
+//
+////                listTotal.childNodes[i].className+="colorGreen"
+//
+//            }else{
+////                listTotal.childNodes[i].className ="colorblue";
+//                console.log('blue')
+//
+//            }
+//
+//        }
+
+        $onlineUsers.html(html);
+
+    });
+
+    sockiet.on('user disconnect',function (data) {
+         var html='';
+        for(var i=0; i<data.length;i++){
+            html+=('<li>'+data[i]+'</li>');
+        }
+        $onlineUsers.html(html);
+
+    });
+
+
+    $('.sendmsgForm').submit(function () {
+        sockiet.emit('chatmsg2server',{msg:$('#msgHoldFromUser').val(),
+                                       userName:$('#usrNameReadOnly').val()
+        });
+        $('#msgHoldFromUser').val('');
+
+        return false;
+    });
+    
+    sockiet.on('server2chatArea Msgs',function (data) {
+        
+        $('#chatContantLive').append('<li class="chatContantLiveList">'+data.userName+": "+data.msg+'</li>');
+        document.querySelector('#showTypingMsgPlus').innerHTML="";
+
+
+    })
+
+    document.getElementById('msgHoldFromUser').addEventListener('keyup',function () {
+         sockiet.emit('userTypingMsg',{msg:$('#msgHoldFromUser').val(),
+             userName:$('#usrNameReadOnly').val()
+         });
+     });
+
+
+    sockiet.on('serverShowTypingmsg',function (data) {
+        console.log(data.msg.length);
+        if(data.msg.length==0){
+            document.querySelector('#showTypingMsgPlus').innerHTML="";
+
+        }
+        else{
+            document.querySelector('#showTypingMsgPlus').innerHTML=data.userName+" is Typing ... ";
+
+        }
+
+    })
+
+</script>
+</body>
+</html>
